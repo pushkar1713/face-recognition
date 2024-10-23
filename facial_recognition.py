@@ -10,17 +10,20 @@ from contextlib import closing  # For context manager
 alg = "haarcascade_frontalface_default.xml"
 def face_to_embed():
     # Connecting to the database
-    conn = psycopg2.connect("your db url")
+    conn = psycopg2.connect("postgresql://pushkar1713:wNWD9PlSQkG5@ep-steep-voice-13899759.us-east-2.aws.neon.tech/python?sslmode=require")
     cur = conn.cursor()
 
-    # Drop the pictures table if it exists
+        # Create vector extension
+    cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+    
+    # Drop existing table
     cur.execute("DROP TABLE IF EXISTS pictures;")
     
-    # Create the pictures table again
+    # Create table with correct vector dimensions (768)
     cur.execute("""
         CREATE TABLE pictures (
             picture TEXT PRIMARY KEY,
-            embedding FLOAT8[]
+            embedding vector(768)
         );
     """)
     
@@ -46,7 +49,7 @@ def face_detection():
     haar_cascade = cv2.CascadeClassifier(alg)
 
     # Specify the file path of the image
-    file_name = "/Users/pushkar1713/Projects/mait-hackathon/test_group.jpg"
+    file_name = "/Users/pushkar1713/Projects/mait-hackathon/group.jpg"
     print("Absolute path to image:", os.path.abspath(file_name))
     
     # Load the image
@@ -87,7 +90,7 @@ def face_detection():
 
 def calc_embeds():
     # loading the face image path into file_name variable
-    file_name = "/Users/pushkar1713/Projects/mait-hackathon/single_person.jpg"  # replace with the path to your image
+    file_name = "/Users/pushkar1713/Projects/mait-hackathon/shahrukh_khan.jpg"  # replace with the path to your image
     # opening the image
     img = Image.open(file_name)
     # loading the `imgbeddings`
@@ -98,7 +101,7 @@ def calc_embeds():
 
 
 def find_face(embedding):
-    conn = psycopg2.connect("your db url")
+    conn = psycopg2.connect("postgresql://pushkar1713:wNWD9PlSQkG5@ep-steep-voice-13899759.us-east-2.aws.neon.tech/python?sslmode=require")
     cur = conn.cursor()
     
     # Convert the NumPy array to a list of native Python floats
